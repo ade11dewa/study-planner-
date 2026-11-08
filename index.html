@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BelajarYuk – Web Belajar, Study Planner & Game</title>
+<style>
+:root{
+  --bg:#f4f6ff; --card:#ffffff; --text:#1e2140; --muted:#6b7194; --line:#e4e7f5;
+  --p1:#6c5ce7; --p2:#00cec9; --p3:#fd79a8; --ok:#00b894; --warn:#fdcb6e; --bad:#ff7675;
+  --shadow:0 10px 30px rgba(80,70,180,.12); --r:20px;
+}
+[data-theme="dark"]{
+  --bg:#0f1226; --card:#181c3a; --text:#eef0ff; --muted:#9aa1d0; --line:#2a2f5c;
+  --shadow:0 10px 30px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,-apple-system,Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;
+  background-image:radial-gradient(circle at 10% 0%,rgba(108,92,231,.18),transparent 40%),radial-gradient(circle at 90% 10%,rgba(0,206,201,.15),transparent 40%);
+  background-attachment:fixed;padding-bottom:84px}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;border:none}
+.wrap{max-width:1100px;margin:0 auto;padding:0 18px}
+
+/* header */
+header{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:color-mix(in srgb,var(--bg) 80%,transparent);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:14px;height:64px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.5px}
+.logo i{font-style:normal;display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff;font-size:20px}
+nav.desk{display:none;margin-left:auto;gap:6px}
+nav button{background:transparent;padding:9px 16px;border-radius:12px;font-weight:600;color:var(--muted);transition:.2s}
+nav.desk button:hover{background:var(--card)}
+nav button.active{background:linear-gradient(135deg,var(--p1),#8e7bff);color:#fff;box-shadow:0 6px 16px rgba(108,92,231,.4)}
+.right{margin-left:auto;display:flex;align-items:center;gap:10px}
+nav.desk+.right{margin-left:12px}
+.xp{display:flex;align-items:center;gap:8px;background:var(--card);padding:6px 12px;border-radius:99px;font-size:13px;font-weight:700;box-shadow:var(--shadow)}
+.xp .lv{background:linear-gradient(135deg,var(--p3),var(--warn));color:#fff;padding:2px 8px;border-radius:99px}
+.icon-btn{width:40px;height:40px;border-radius:12px;background:var(--card);box-shadow:var(--shadow);font-size:18px}
+
+/* bottom nav mobile */
+nav.mob{position:fixed;bottom:0;left:0;right:0;z-index:60;display:flex;justify-content:space-around;background:var(--card);border-top:1px solid var(--line);padding:8px 6px calc(8px + env(safe-area-inset-bottom));box-shadow:0 -8px 24px rgba(0,0,0,.08)}
+nav.mob button{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;padding:6px 12px;flex:1}
+nav.mob button span{font-size:20px}
+nav.mob button.active{background:transparent;color:var(--p1);box-shadow:none}
+@media(min-width:760px){nav.desk{display:flex}nav.mob{display:none}body{padding-bottom:30px}}
+
+/* views */
+.view{display:none;padding:26px 0;animation:fade .4s ease}
+.view.show{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+h2.t{font-size:26px;margin-bottom:6px;letter-spacing:-.5px}
+p.sub{color:var(--muted);margin-bottom:20px}
+.card{background:var(--card);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);border:1px solid var(--line)}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.btn{padding:11px 20px;border-radius:14px;font-weight:700;background:linear-gradient(135deg,var(--p1),#8e7bff);color:#fff;box-shadow:0 8px 18px rgba(108,92,231,.35);transition:.2s}
+.btn:hover{transform:translateY(-2px)}
+.btn.alt{background:var(--card);color:var(--text);border:1px solid var(--line);box-shadow:none}
+.btn.green{background:linear-gradient(135deg,var(--ok),var(--p2));box-shadow:0 8px 18px rgba(0,184,148,.3)}
+.btn.sm{padding:7px 14px;font-size:13px;border-radius:10px}
+
+/* hero */
+.hero{border-radius:28px;padding:34px 28px;color:#fff;background:linear-gradient(135deg,#6c5ce7 0%,#a29bfe 45%,#00cec9 100%);position:relative;overflow:hidden;box-shadow:0 20px 40px rgba(108,92,231,.35)}
+.hero:after{content:"🚀";position:absolute;right:20px;bottom:-10px;font-size:120px;opacity:.25;transform:rotate(-15deg)}
+.hero h1{font-size:clamp(26px,5vw,40px);line-height:1.15;margin-bottom:10px;letter-spacing:-1px}
+.hero p{max-width:520px;opacity:.95;margin-bottom:18px}
+.hero .btn{background:#fff;color:var(--p1);box-shadow:0 8px 20px rgba(0,0,0,.15);margin-right:8px}
+.stat{text-align:center}
+.stat .n{font-size:30px;font-weight:800;background:linear-gradient(135deg,var(--p1),var(--p2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.stat .l{font-size:13px;color:var(--muted)}
+.bar-bg{height:10px;background:var(--line);border-radius:99px;overflow:hidden}
+.bar-fg{height:100%;background:linear-gradient(90deg,var(--p2),var(--p1));border-radius:99px;transition:width .5s}
+
+/* chips */
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.chip{padding:8px 16px;border-radius:99px;background:var(--card);border:1px solid var(--line);font-weight:600;font-size:14px;color:var(--muted)}
+.chip.on{background:var(--p1);color:#fff;border-color:var(--p1)}
+
+/* lesson cards */
+.lesson{cursor:pointer;transition:.25s;position:relative;overflow:hidden}
+.lesson:hover{transform:translateY(-5px)}
+.lesson .ic{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;font-size:28px;margin-bottom:12px}
+.lesson h3{margin-bottom:6px}
+.lesson p{color:var(--muted);font-size:14px}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;background:rgba(108,92,231,.12);color:var(--p1);margin-top:10px}
+.lesson .done{position:absolute;top:14px;right:14px;background:var(--ok);color:#fff;border-radius:99px;font-size:12px;padding:3px 10px;font-weight:700}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(10,12,30,.6);backdrop-filter:blur(6px);z-index:100;display:none;align-items:center;justify-content:center;padding:14px}
+.modal.show{display:flex}
+.sheet{background:var(--card);width:100%;max-width:680px;max-height:90vh;overflow:auto;border-radius:26px;padding:26px;animation:pop .3s ease;position:relative}
+@keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+.close{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:50%;background:var(--bg);font-size:16px}
+.sheet h3{font-size:22px;margin-bottom:12px;padding-right:40px}
+.sheet .body{line-height:1.7;margin-bottom:16px}
+.sheet .body ul{margin:8px 0 8px 20px}
+.sheet .body code{background:var(--bg);padding:2px 7px;border-radius:6px;font-size:.92em}
+.fc{perspective:900px;height:150px;margin:10px 0;cursor:pointer}
+.fc .in{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+.fc.flip .in{transform:rotateY(180deg)}
+.fc .f,.fc .b{position:absolute;inset:0;backface-visibility:hidden;border-radius:18px;display:grid;place-items:center;text-align:center;padding:16px;font-weight:700;font-size:18px}
+.fc .f{background:linear-gradient(135deg,var(--p1),#8e7bff);color:#fff}
+.fc .b{background:linear-gradient(135deg,var(--p2),var(--ok));color:#fff;transform:rotateY(180deg)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+
+/* planner */
+form.add{display:grid;gap:10px;grid-template-columns:1fr}
+@media(min-width:700px){form.add{grid-template-columns:2fr 1fr 1fr 1fr auto}}
+input,select{background:var(--bg);border:1.5px solid var(--line);padding:11px 14px;border-radius:12px;width:100%;outline:none}
+input:focus,select:focus{border-color:var(--p1)}
+.task{display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;background:var(--bg);border-left:5px solid var(--p1);margin-bottom:10px;transition:.2s}
+.task.hi{border-left-color:var(--bad)}.task.md{border-left-color:var(--warn)}.task.lo{border-left-color:var(--ok)}
+.task.fin .ttl{text-decoration:line-through;opacity:.5}
+.task input[type=checkbox]{width:22px;height:22px;accent-color:var(--ok);flex:none}
+.task .info{flex:1;min-width:0}
+.ttl{font-weight:700;word-break:break-word}
+.meta{font-size:12px;color:var(--muted);margin-top:3px}
+.meta .late{color:var(--bad);font-weight:700}
+.del{background:transparent;font-size:18px;opacity:.6}.del:hover{opacity:1}
+.pomo{text-align:center}
+.timer{font-size:clamp(52px,12vw,72px);font-weight:800;letter-spacing:2px;font-variant-numeric:tabular-nums;background:linear-gradient(135deg,var(--p1),var(--p3));-webkit-background-clip:text;background-clip:text;color:transparent;margin:6px 0}
+.empty{text-align:center;color:var(--muted);padding:26px 0}
+
+/* games */
+.gcard{cursor:pointer;text-align:center;transition:.25s}
+.gcard:hover{transform:translateY(-6px) rotate(-1deg)}
+.gcard .em{font-size:56px;margin-bottom:8px}
+.opts{display:grid;gap:10px;margin:16px 0}
+@media(min-width:600px){.opts{grid-template-columns:1fr 1fr}}
+.opt{padding:15px;border-radius:14px;background:var(--bg);border:2px solid var(--line);text-align:left;font-weight:600;transition:.15s}
+.opt:hover:not(:disabled){border-color:var(--p1);transform:scale(1.02)}
+.opt.right{background:rgba(0,184,148,.2);border-color:var(--ok)}
+.opt.wrong{background:rgba(255,118,117,.2);border-color:var(--bad);animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.qtext{font-size:clamp(18px,3.5vw,24px);font-weight:700;line-height:1.35}
+.mem{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:420px;margin:16px auto}
+.mc{aspect-ratio:1;perspective:600px;cursor:pointer}
+.mc .in{position:relative;width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d}
+.mc.open .in,.mc.matched .in{transform:rotateY(180deg)}
+.mc .f,.mc .b{position:absolute;inset:0;backface-visibility:hidden;border-radius:14px;display:grid;place-items:center}
+.mc .f{background:linear-gradient(135deg,var(--p1),var(--p3));color:#fff;font-size:24px}
+.mc .b{background:var(--bg);border:2px solid var(--line);transform:rotateY(180deg);font-size:clamp(26px,7vw,38px)}
+.mc.matched .b{background:rgba(0,184,148,.2);border-color:var(--ok)}
+.pill{background:var(--bg);padding:6px 14px;border-radius:99px;font-weight:700;font-size:14px}
+.big{font-size:60px;text-align:center}
+
+/* toast */
+#toast{position:fixed;left:50%;top:78px;transform:translate(-50%,-30px);background:var(--text);color:var(--bg);padding:12px 22px;border-radius:99px;font-weight:700;z-index:200;opacity:0;pointer-events:none;transition:.35s;max-width:90vw;text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+footer{text-align:center;color:var(--muted);font-size:13px;padding:20px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <div class="logo"><i>🎓</i> BelajarYuk</div>
+    <nav class="desk" id="navDesk"></nav>
+    <div class="right">
+      <div class="xp"><span class="lv" id="hLv">Lv 1</span><span id="hXp">0 XP</span></div>
+      <button class="icon-btn" id="themeBtn" title="Ganti tema">🌙</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- BERANDA -->
+<section class="view show" id="v-home">
+  <div class="hero">
+    <h1>Belajar jadi lebih seru, terarah, dan menyenangkan!</h1>
+    <p>Pelajari materi singkat, atur jadwal belajarmu, lalu kumpulkan XP lewat game edukatif.</p>
+    <button class="btn" data-go="learn">📚 Mulai Belajar</button>
+    <button class="btn" data-go="game">🎮 Main Game</button>
+  </div>
+  <div class="grid g4" style="margin:20px 0">
+    <div class="card stat"><div class="n" id="sDone">0</div><div class="l">Tugas Selesai</div></div>
+    <div class="card stat"><div class="n" id="sLes">0</div><div class="l">Materi Dipelajari</div></div>
+    <div class="card stat"><div class="n" id="sFocus">0</div><div class="l">Menit Fokus</div></div>
+    <div class="card stat"><div class="n" id="sXp">0</div><div class="l">Total XP</div></div>
+  </div>
+  <div class="grid g2">
+    <div class="card">
+      <h3 style="margin-bottom:10px">🎯 Level Kamu</h3>
+      <div class="row between" style="font-size:14px;margin-bottom:6px"><b id="lvTxt">Level 1</b><span id="lvNext" style="color:var(--muted)"></span></div>
+      <div class="bar-bg"><div class="bar-fg" id="lvBar" style="width:0"></div></div>
+      <p style="margin-top:14px;color:var(--muted);font-size:14px" id="quote"></p>
+    </div>
+    <div class="card">
+      <div class="row between" style="margin-bottom:10px"><h3>📌 Tugas Terdekat</h3><button class="btn sm alt" data-go="plan">Lihat semua</button></div>
+      <div id="homeTasks"></div>
+    </div>
+  </div>
+</section>
+
+<!-- BELAJAR -->
+<section class="view" id="v-learn">
+  <h2 class="t">📚 Materi Belajar</h2>
+  <p class="sub">Pilih topik, baca ringkasannya, lalu latih dengan kartu flash. Selesaikan materi untuk +20 XP.</p>
+  <div class="chips" id="chips"></div>
+  <div class="grid g2" id="lessons"></div>
+</section>
+
+<!-- PLANNER -->
+<section class="view" id="v-plan">
+  <h2 class="t">🗓️ Study Planner</h2>
+  <p class="sub">Catat tugas dan target belajarmu. Centang tugas yang selesai untuk +10 XP.</p>
+  <div class="card" style="margin-bottom:16px">
+    <form class="add" id="taskForm">
+      <input id="tTitle" placeholder="Apa yang mau dipelajari?" required maxlength="80">
+      <select id="tSub"><option>Matematika</option><option>Sains</option><option>Bahasa Inggris</option><option>Pemrograman</option><option>Lainnya</option></select>
+      <input type="date" id="tDate" required>
+      <select id="tPri"><option value="hi">🔴 Tinggi</option><option value="md" selected>🟡 Sedang</option><option value="lo">🟢 Rendah</option></select>
+      <button class="btn" type="submit">＋ Tambah</button>
+    </form>
+  </div>
+  <div class="grid g2">
+    <div class="card">
+      <div class="row between" style="margin-bottom:12px">
+        <h3>Daftar Tugas</h3>
+        <div class="chips" style="margin:0" id="tFilter">
+          <button class="chip on" data-f="all">Semua</button>
+          <button class="chip" data-f="open">Aktif</button>
+          <button class="chip" data-f="done">Selesai</button>
+        </div>
+      </div>
+      <div class="row between" style="font-size:13px;color:var(--muted);margin-bottom:6px"><span>Progres</span><b id="pgTxt">0%</b></div>
+      <div class="bar-bg" style="margin-bottom:16px"><div class="bar-fg" id="pgBar" style="width:0"></div></div>
+      <div id="taskList"></div>
+    </div>
+    <div class="card pomo">
+      <h3>⏱️ Pomodoro Fokus</h3>
+      <div class="chips" style="justify-content:center;margin:12px 0 0">
+        <button class="chip on" data-m="25">Fokus 25</button>
+        <button class="chip" data-m="5">Istirahat 5</button>
+        <button class="chip" data-m="15">Istirahat 15</button>
+      </div>
+      <div class="timer" id="timer">25:00</div>
+      <p class="sub" id="pState" style="margin-bottom:14px">Siap fokus?</p>
+      <div class="row" style="justify-content:center">
+        <button class="btn green" id="pStart">▶ Mulai</button>
+        <button class="btn alt" id="pReset">↺ Reset</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GAME -->
+<section class="view" id="v-game">
+  <h2 class="t">🎮 Arena Game</h2>
+  <p class="sub">Belajar sambil bermain! Kumpulkan XP dan pecahkan rekor terbaikmu.</p>
+  <div id="gMenu" class="grid g2">
+    <div class="card gcard" id="playQuiz"><div class="em">⚡</div><h3>Quiz Kilat</h3><p class="sub" style="margin:6px 0">10 soal, 15 detik per soal. Makin cepat, makin banyak poin!</p><span class="tag">Rekor: <span id="bQuiz">0</span></span></div>
+    <div class="card gcard" id="playMem"><div class="em">🧠</div><h3>Memory Match</h3><p class="sub" style="margin:6px 0">Cocokkan semua pasangan kartu dengan langkah sesedikit mungkin.</p><span class="tag">Rekor: <span id="bMem">-</span></span></div>
+  </div>
+  <div id="gArea"></div>
+</section>
+
+</main>
+
+<footer>Dibuat dengan ❤️ untuk pelajar Indonesia • Data tersimpan otomatis di perangkatmu</footer>
+
+<nav class="mob" id="navMob"></nav>
+
+<div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+<div id="toast"></div>
+
+<script>
+/* ============ UTIL & STATE ============ */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const KEY='belajaryuk_v1';
+let S={xp:0,done:[],tasks:[],focus:0,bestQuiz:0,bestMem:null,theme:'light'};
+try{Object.assign(S,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),2400)}
+function addXp(n){const old=lvl();S.xp+=n;save();renderStats();if(lvl()>old)toast('🎉 Naik ke Level '+lvl()+'!');}
+const lvl=()=>Math.floor(S.xp/100)+1;
+function beep(){try{const c=new (window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=880;g.gain.setValueAtTime(.2,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.8);o.start();o.stop(c.currentTime+.8)}catch(e){}}
+
+/* ============ DATA ============ */
+const SUBJ={
+  'Matematika':{ic:'➗',bg:'rgba(108,92,231,.15)'},
+  'Sains':{ic:'🔬',bg:'rgba(0,206,201,.18)'},
+  'Bahasa Inggris':{ic:'🇬🇧',bg:'rgba(253,121,168,.2)'},
+  'Pemrograman':{ic:'💻',bg:'rgba(253,203,110,.28)'}
+};
+const LESSONS=[
+ {id:'m1',sub:'Matematika',title:'Pecahan & Persen',desc:'Operasi pecahan dan konversi ke persen.',
+  body:`<p>Pecahan menyatakan bagian dari keseluruhan: <code>a/b</code> dengan b ≠ 0.</p><ul><li><b>Penjumlahan:</b> samakan penyebut dulu. 1/2 + 1/3 = 3/6 + 2/6 = 5/6</li><li><b>Perkalian:</b> kalikan pembilang dan penyebut. 2/3 × 3/4 = 6/12 = 1/2</li><li><b>Persen:</b> pecahan dengan penyebut 100. 3/4 = 75%</li></ul><p>Tips: untuk mencari x% dari suatu bilangan, kalikan bilangan itu dengan x/100.</p>`,
+  cards:[['1/2 + 1/4 = ?','3/4'],['25% dari 80 = ?','20'],['Ubah 0,6 ke persen','60%']]},
+ {id:'m2',sub:'Matematika',title:'Luas & Keliling',desc:'Rumus bangun datar yang wajib hafal.',
+  body:`<ul><li><b>Persegi:</b> L = s², K = 4s</li><li><b>Persegi panjang:</b> L = p × l, K = 2(p + l)</li><li><b>Segitiga:</b> L = ½ × a × t</li><li><b>Lingkaran:</b> L = πr², K = 2πr (π ≈ 3,14 atau 22/7)</li></ul><p>Pastikan satuan sama sebelum menghitung, dan luas selalu berpangkat dua (cm², m²).</p>`,
+  cards:[['Luas segitiga alas 10, tinggi 6','30'],['Keliling persegi sisi 7','28'],['Luas lingkaran r = 7 (π=22/7)','154']]},
+ {id:'s1',sub:'Sains',title:'Sistem Tata Surya',desc:'Kenali planet dan Matahari sebagai pusatnya.',
+  body:`<p>Tata surya terdiri dari Matahari dan benda langit yang mengorbitnya.</p><ul><li>Urutan planet: <b>Merkurius, Venus, Bumi, Mars, Jupiter, Saturnus, Uranus, Neptunus</b></li><li>Planet terbesar: Jupiter</li><li>Planet terdekat dengan Matahari: Merkurius</li><li>Bumi butuh ± 365 hari mengelilingi Matahari (revolusi) dan 24 jam berputar pada porosnya (rotasi)</li></ul>`,
+  cards:[['Planet terbesar?','Jupiter'],['Planet ke-3 dari Matahari?','Bumi'],['Penyebab pergantian siang-malam?','Rotasi Bumi']]},
+ {id:'s2',sub:'Sains',title:'Fotosintesis',desc:'Cara tumbuhan membuat makanannya sendiri.',
+  body:`<p>Fotosintesis terjadi di <b>kloroplas</b> yang mengandung klorofil.</p><p><code>6CO₂ + 6H₂O + cahaya → C₆H₁₂O₆ + 6O₂</code></p><ul><li>Bahan: karbon dioksida, air, cahaya matahari</li><li>Hasil: glukosa (makanan) dan oksigen</li><li>Berlangsung terutama di daun</li></ul>`,
+  cards:[['Zat hijau daun disebut?','Klorofil'],['Gas yang dihasilkan fotosintesis?','Oksigen'],['Organel tempat fotosintesis?','Kloroplas']]},
+ {id:'e1',sub:'Bahasa Inggris',title:'Simple Present Tense',desc:'Kebiasaan dan fakta umum.',
+  body:`<p>Dipakai untuk kebiasaan dan fakta.</p><ul><li><b>Rumus (+):</b> S + V1 (+s/es untuk he/she/it)</li><li><b>(−):</b> S + do/does not + V1</li><li><b>(?):</b> Do/Does + S + V1?</li></ul><p>Contoh: <i>She <b>studies</b> English every night.</i> / <i>They <b>do not</b> play football.</i></p><p>Kata keterangan: always, usually, often, sometimes, never, every day.</p>`,
+  cards:[['He ___ (go) to school.','goes'],['___ she like coffee?','Does'],['Fakta: The sun ___ in the east.','rises']]},
+ {id:'e2',sub:'Bahasa Inggris',title:'Kosakata Sehari-hari',desc:'Kata penting untuk percakapan.',
+  body:`<ul><li><b>Breakfast</b> – sarapan</li><li><b>Homework</b> – pekerjaan rumah</li><li><b>Borrow</b> – meminjam</li><li><b>Improve</b> – meningkatkan</li><li><b>Schedule</b> – jadwal</li><li><b>Achieve</b> – mencapai</li></ul><p>Latih dengan membuat satu kalimat dari tiap kata setiap hari.</p>`,
+  cards:[['Schedule','Jadwal'],['Borrow','Meminjam'],['Achieve','Mencapai']]},
+ {id:'p1',sub:'Pemrograman',title:'Dasar Logika & Variabel',desc:'Fondasi berpikir seorang programmer.',
+  body:`<p><b>Variabel</b> adalah wadah untuk menyimpan data.</p><p><code>let nama = "Budi";</code><br><code>let umur = 16;</code></p><ul><li>Tipe data: string (teks), number (angka), boolean (true/false)</li><li><b>Percabangan:</b> <code>if (umur &gt;= 17) {...} else {...}</code></li><li><b>Perulangan:</b> <code>for (let i=0;i&lt;5;i++) {...}</code></li></ul>`,
+  cards:[['Tipe data true/false?','Boolean'],['Struktur untuk mengulang kode?','Loop (perulangan)'],['let x = 5; menyimpan apa?','Variabel bernilai 5']]},
+ {id:'p2',sub:'Pemrograman',title:'Dasar HTML & CSS',desc:'Membangun dan mempercantik halaman web.',
+  body:`<ul><li><b>HTML</b> = struktur halaman (<code>&lt;h1&gt;</code>, <code>&lt;p&gt;</code>, <code>&lt;img&gt;</code>)</li><li><b>CSS</b> = tampilan (warna, ukuran, tata letak)</li><li><b>JavaScript</b> = interaksi dan logika</li></ul><p>Contoh CSS: <code>h1 { color: purple; font-size: 32px; }</code></p><p>Gunakan <code>@media</code> agar tampilan responsif di HP.</p>`,
+  cards:[['Bahasa untuk struktur web?','HTML'],['Bahasa untuk gaya tampilan?','CSS'],['Agar web responsif gunakan?','Media query']]}
+];
+const QUIZ=[
+ ['Matematika','Hasil dari 3/4 + 1/4 adalah…',['1','1/2','3/8','4/8'],0],
+ ['Matematika','25% dari 200 adalah…',['25','50','75','100'],1],
+ ['Matematika','Keliling persegi dengan sisi 9 cm adalah…',['18 cm','27 cm','36 cm','81 cm'],2],
+ ['Matematika','Luas segitiga alas 8 dan tinggi 5 adalah…',['40','20','13','26'],1],
+ ['Matematika','Berapa 12 × 12?',['124','144','122','132'],1],
+ ['Sains','Planet terdekat dengan Matahari?',['Venus','Mars','Merkurius','Bumi'],2],
+ ['Sains','Gas yang dihasilkan tumbuhan saat fotosintesis?',['Nitrogen','Oksigen','Hidrogen','Karbon dioksida'],1],
+ ['Sains','Air membeku pada suhu…',['0°C','50°C','100°C','-50°C'],0],
+ ['Sains','Organ pemompa darah adalah…',['Paru-paru','Hati','Jantung','Ginjal'],2],
+ ['Sains','Planet terbesar di tata surya?',['Saturnus','Jupiter','Neptunus','Bumi'],1],
+ ['Bahasa Inggris','She ___ to school every day.',['go','goes','going','gone'],1],
+ ['Bahasa Inggris','Arti kata "borrow" adalah…',['Memberi','Membeli','Meminjam','Menjual'],2],
+ ['Bahasa Inggris','___ they play football? (kalimat tanya)',['Does','Do','Is','Are'],1],
+ ['Bahasa Inggris','Lawan kata "big" adalah…',['Large','Huge','Small','Tall'],2],
+ ['Bahasa Inggris','Arti "schedule"?',['Jadwal','Sekolah','Tugas','Buku'],0],
+ ['Pemrograman','Bahasa untuk struktur halaman web?',['CSS','HTML','Python','SQL'],1],
+ ['Pemrograman','Tipe data true/false disebut…',['String','Number','Boolean','Array'],2],
+ ['Pemrograman','Perulangan dalam JavaScript menggunakan…',['for','if','let','var'],0],
+ ['Pemrograman','CSS digunakan untuk…',['Logika','Tampilan','Database','Server'],1],
+ ['Pemrograman','Simbol untuk komentar satu baris di JS?',['#','//','<!--','**'],1]
+];
+const QUOTES=['“Sedikit demi sedikit, lama-lama menjadi bukit.”','“Konsisten 25 menit sehari lebih baik daripada 5 jam sekali seminggu.”','“Kesalahan adalah bukti kamu sedang belajar.”','“Mulai dari yang kecil, tapi mulailah sekarang.”','“Fokus pada progres, bukan kesempurnaan.”'];
+
+/* ============ NAV ============ */
+const VIEWS=[['home','Beranda','🏠'],['learn','Belajar','📚'],['plan','Planner','🗓️'],['game','Game','🎮']];
+function buildNav(){
+  $('#navDesk').innerHTML=VIEWS.map(v=>`<button data-go="${v[0]}">${v[1]}</button>`).join('');
+  $('#navMob').innerHTML=VIEWS.map(v=>`<button data-go="${v[0]}"><span>${v[2]}</span>${v[1]}</button>`).join('');
+}
+function go(v){
+  $$('.view').forEach(x=>x.classList.toggle('show',x.id==='v-'+v));
+  $$('nav button').forEach(b=>b.classList.toggle('active',b.dataset.go===v));
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(v==='home')renderHome();
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b)go(b.dataset.go)});
+
+/* ============ THEME ============ */
+function setTheme(t){S.theme=t;document.documentElement.dataset.theme=t;$('#themeBtn').textContent=t==='dark'?'☀️':'🌙';save()}
+$('#themeBtn').onclick=()=>setTheme(S.theme==='dark'?'light':'dark');
+
+/* ============ STATS / HOME ============ */
+function renderStats(){
+  $('#hLv').textContent='Lv '+lvl();$('#hXp').textContent=S.xp+' XP';
+  $('#sDone').textContent=S.tasks.filter(t=>t.done).length;
+  $('#sLes').textContent=S.done.length;
+  $('#sFocus').textContent=S.focus;
+  $('#sXp').textContent=S.xp;
+  const into=S.xp%100;
+  $('#lvTxt').textContent='Level '+lvl();
+  $('#lvNext').textContent=(100-into)+' XP lagi ke level berikutnya';
+  $('#lvBar').style.width=into+'%';
+}
+function renderHome(){
+  renderStats();
+  $('#quote').textContent=QUOTES[new Date().getDate()%QUOTES.length];
+  const open=S.tasks.filter(t=>!t.done).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,3);
+  $('#homeTasks').innerHTML=open.length?open.map(t=>`<div class="task ${t.pri}"><div class="info"><div class="ttl">${esc(t.title)}</div><div class="meta">${esc(t.sub)} • ${fmtDate(t.date)}</div></div></div>`).join(''):'<div class="empty">Belum ada tugas aktif 🎉<br>Tambahkan di Study Planner.</div>';
+}
+const fmtDate=d=>new Date(d+'T00:00:00').toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short'});
+
+/* ============ LEARN ============ */
+let lFilter='Semua';
+function renderLessons(){
+  const subs=['Semua',...Object.keys(SUBJ)];
+  $('#chips').innerHTML=subs.map(s=>`<button class="chip ${s===lFilter?'on':''}" data-s="${s}">${s}</button>`).join('');
+  $('#lessons').innerHTML=LESSONS.filter(l=>lFilter==='Semua'||l.sub===lFilter).map(l=>`
+    <div class="card lesson" data-id="${l.id}">
+      ${S.done.includes(l.id)?'<span class="done">✓ Selesai</span>':''}
+      <div class="ic" style="background:${SUBJ[l.sub].bg}">${SUBJ[l.sub].ic}</div>
+      <h3>${l.title}</h3><p>${l.desc}</p><span class="tag">${l.sub}</span>
+    </div>`).join('');
+}
+$('#chips').onclick=e=>{const c=e.target.closest('.chip');if(c){lFilter=c.dataset.s;renderLessons()}};
+$('#lessons').onclick=e=>{const c=e.target.closest('.lesson');if(c)openLesson(c.dataset.id)};
+let cardI=0;
+function openLesson(id){
+  const l=LESSONS.find(x=>x.id===id);cardI=0;
+  const draw=()=>{
+    const c=l.cards[cardI];
+    $('#sheet').innerHTML=`<button class="close" onclick="closeModal()">✕</button>
+      <span class="tag" style="margin:0 0 8px">${SUBJ[l.sub].ic} ${l.sub}</span>
+      <h3>${l.title}</h3><div class="body">${l.body}</div>
+      <h4 style="margin-bottom:4px">🃏 Kartu Flash (${cardI+1}/${l.cards.length})</h4>
+      <div class="fc" id="fc"><div class="in"><div class="f">${c[0]}</div><div class="b">${c[1]}</div></div></div>
+      <p class="meta" style="text-align:center;margin-bottom:12px">Ketuk kartu untuk membalik</p>
+      <div class="row between">
+        <button class="btn sm alt" id="fcN">Kartu berikutnya ➜</button>
+        <button class="btn green" id="fcD" ${S.done.includes(id)?'disabled style="opacity:.6"':''}>${S.done.includes(id)?'✓ Sudah selesai':'✔ Tandai Selesai (+20 XP)'}</button>
+      </div>`;
+    $('#fc').onclick=()=>$('#fc').classList.toggle('flip');
+    $('#fcN').onclick=()=>{cardI=(cardI+1)%l.cards.length;draw()};
+    $('#fcD').onclick=()=>{if(!S.done.includes(id)){S.done.push(id);addXp(20);toast('📘 Materi selesai! +20 XP');renderLessons();draw()}};
+  };
+  draw();$('#modal').classList.add('show');
+}
+function closeModal(){$('#modal').classList.remove('show')}
+$('#modal').onclick=e=>{if(e.target.id==='modal')closeModal()};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
+/* ============ PLANNER ============ */
+let tFilter='all';
+$('#tDate').value=new Date().toISOString().slice(0,10);
+$('#taskForm').onsubmit=e=>{
+  e.preventDefault();
+  S.tasks.unshift({id:Date.now(),title:$('#tTitle').value.trim(),sub:$('#tSub').value,date:$('#tDate').value,pri:$('#tPri').value,done:false});
+  save();$('#tTitle').value='';renderTasks();renderStats();toast('✅ Tugas ditambahkan');
+};
+$('#tFilter').onclick=e=>{const c=e.target.closest('.chip');if(!c)return;tFilter=c.dataset.f;$$('#tFilter .chip').forEach(x=>x.classList.toggle('on',x===c));renderTasks()};
+function renderTasks(){
+  const today=new Date().toISOString().slice(0,10);
+  const list=S.tasks.filter(t=>tFilter==='all'||(tFilter==='done'?t.done:!t.done)).sort((a,b)=>a.done-b.done||a.date.localeCompare(b.date));
+  $('#taskList').innerHTML=list.length?list.map(t=>`
+    <div class="task ${t.pri} ${t.done?'fin':''}">
+      <input type="checkbox" data-id="${t.id}" ${t.done?'checked':''}>
+      <div class="info"><div class="ttl">${esc(t.title)}</div>
+        <div class="meta">${esc(t.sub)} • ${fmtDate(t.date)} ${!t.done&&t.date<today?'<span class="late">• Terlambat!</span>':''}</div></div>
+      <button class="del" data-del="${t.id}" title="Hapus">🗑️</button>
+    </div>`).join(''):'<div class="empty">Belum ada tugas di sini ✨</div>';
+  const tot=S.tasks.length,dn=S.tasks.filter(t=>t.done).length,p=tot?Math.round(dn/tot*100):0;
+  $('#pgTxt').textContent=p+'% ('+dn+'/'+tot+')';$('#pgBar').style.width=p+'%';
+}
+$('#taskList').onclick=e=>{
+  const cb=e.target.closest('input[type=checkbox]'),dl=e.target.closest('[data-del]');
+  if(cb){const t=S.tasks.find(x=>x.id==cb.dataset.id);t.done=cb.checked;save();if(t.done){addXp(10);toast('🔥 Mantap! +10 XP')}else{S.xp=Math.max(0,S.xp-10);save()}renderTasks();renderStats()}
+  if(dl){S.tasks=S.tasks.filter(x=>x.id!=dl.dataset.del);save();renderTasks();renderStats()}
+};
+
+/* Pomodoro */
+let pMin=25,pLeft=25*60,pRun=null;
+const showT=()=>{$('#timer').textContent=String(pLeft/60|0).padStart(2,'0')+':'+String(pLeft%60).padStart(2,'0');document.title=pRun?$('#timer').textContent+' • BelajarYuk':'BelajarYuk – Web Belajar, Study Planner & Game'};
+function pReset(){clearInterval(pRun);pRun=null;pLeft=pMin*60;$('#pStart').textContent='▶ Mulai';$('#pState').textContent='Siap fokus?';showT()}
+$('#pStart').onclick=()=>{
+  if(pRun){clearInterval(pRun);pRun=null;$('#pStart').textContent='▶ Lanjut';$('#pState').textContent='Dijeda';return}
+  $('#pStart').textContent='⏸ Jeda';$('#pState').textContent=pMin===25?'Fokus! Jangan buka medsos 😉':'Waktunya rileks ☕';
+  pRun=setInterval(()=>{pLeft--;showT();if(pLeft<=0){clearInterval(pRun);pRun=null;beep();
+    if(pMin===25){S.focus+=25;addXp(15);toast('🎯 Sesi fokus selesai! +15 XP')}else toast('☕ Istirahat selesai!');
+    pReset();renderStats()}},1000);
+};
+$('#pReset').onclick=pReset;
+$$('[data-m]').forEach(b=>b.onclick=()=>{pMin=+b.dataset.m;$$('[data-m]').forEach(x=>x.classList.toggle('on',x===b));pReset()});
+
+/* ============ GAMES ============ */
+const gArea=$('#gArea'),gMenu=$('#gMenu');
+function showMenu(){gArea.innerHTML='';gMenu.style.display='';$('#bQuiz').textContent=S.bestQuiz;$('#bMem').textContent=S.bestMem??'-';stopGames()}
+let qTimer=null,mTimer=null;
+function stopGames(){clearInterval(qTimer);clearInterval(mTimer)}
+
+/* --- Quiz Kilat --- */
+$('#playQuiz').onclick=()=>{
+  gMenu.style.display='none';
+  gArea.innerHTML=`<div class="card"><h3 style="margin-bottom:12px">⚡ Pilih Kategori</h3><div class="chips" id="qc">${['Campuran',...Object.keys(SUBJ)].map(s=>`<button class="chip" data-s="${s}">${s}</button>`).join('')}</div><button class="btn alt sm" id="bk">← Kembali</button></div>`;
+  $('#bk').onclick=showMenu;
+  $('#qc').onclick=e=>{const c=e.target.closest('.chip');if(c)startQuiz(c.dataset.s)};
+};
+function startQuiz(cat){
+  const pool=QUIZ.filter(q=>cat==='Campuran'||q[0]===cat);
+  const qs=shuffle(pool).slice(0,10).map(q=>{const c=q[2][q[3]];const o=shuffle(q[2]);return{t:q[1],o,a:o.indexOf(c)}});
+  let i=0,score=0,right=0,streak=0,left=15;
+  const draw=()=>{
+    const q=qs[i];left=15;
+    gArea.innerHTML=`<div class="card">
+      <div class="row between" style="margin-bottom:10px"><span class="pill">Soal ${i+1}/${qs.length}</span><span class="pill">🏆 ${score}</span><span class="pill" id="qt">⏳ 15</span></div>
+      <div class="bar-bg"><div class="bar-fg" id="qb" style="width:100%;transition:width 1s linear"></div></div>
+      <p class="qtext" style="margin-top:18px">${esc(q.t)}</p>
+      <div class="opts">${q.o.map((o,k)=>`<button class="opt" data-k="${k}">${esc(o)}</button>`).join('')}</div>
+      <div id="qf" style="min-height:24px;font-weight:700"></div></div>`;
+    clearInterval(qTimer);
+    setTimeout(()=>{const b=$('#qb');if(b)b.style.width='0%'},50);
+    qTimer=setInterval(()=>{left--;const t=$('#qt');if(t)t.textContent='⏳ '+left;if(left<=0){clearInterval(qTimer);answer(-1)}},1000);
+    $$('.opt').forEach(b=>b.onclick=()=>answer(+b.dataset.k));
+  };
+  const answer=k=>{
+    clearInterval(qTimer);const q=qs[i];
+    $$('.opt').forEach(b=>{b.disabled=true;if(+b.dataset.k===q.a)b.classList.add('right');else if(+b.dataset.k===k)b.classList.add('wrong')});
+    if(k===q.a){streak++;right++;const gain=10+left+Math.min(streak,5)*2;score+=gain;$('#qf').innerHTML=`✅ Benar! +${gain} poin ${streak>1?'🔥 x'+streak:''}`}
+    else{streak=0;$('#qf').textContent=k===-1?'⌛ Waktu habis!':'❌ Kurang tepat'}
+    setTimeout(()=>{i++;i<qs.length?draw():end()},1300);
+  };
+  const end=()=>{
+    const xp=right*5;addXp(xp);const rec=score>S.bestQuiz;if(rec){S.bestQuiz=score;save()}
+    gArea.innerHTML=`<div class="card" style="text-align:center"><div class="big">${right>=8?'🏆':right>=5?'👏':'💪'}</div>
+      <h2 class="t">Skor: ${score}</h2><p class="sub">Benar ${right} dari ${qs.length} soal • +${xp} XP ${rec?'• 🎉 Rekor baru!':''}</p>
+      <div class="row" style="justify-content:center"><button class="btn" id="again">🔁 Main Lagi</button><button class="btn alt" id="bk">Menu</button></div></div>`;
+    $('#again').onclick=()=>startQuiz(cat);$('#bk').onclick=showMenu;
+  };
+  draw();
+}
+
+/* --- Memory Match --- */
+$('#playMem').onclick=()=>{gMenu.style.display='none';startMem()};
+function startMem(){
+  const em=shuffle(['🦊','🐼','🚀','🌈','📚','⚽','🎨','🍕']);
+  const deck=shuffle([...em,...em]);
+  let first=null,lock=false,moves=0,pairs=0,sec=0;
+  gArea.innerHTML=`<div class="card" style="text-align:center">
+    <div class="row between"><span class="pill">👣 <span id="mv">0</span> langkah</span><span class="pill">⏱️ <span id="ms">0</span>s</span><button class="btn sm alt" id="bk">Menu</button></div>
+    <div class="mem" id="mem">${deck.map((e,i)=>`<div class="mc" data-i="${i}"><div class="in"><div class="f">❓</div><div class="b">${e}</div></div></div>`).join('')}</div>
+    <p class="meta">Temukan 8 pasangan emoji yang sama</p></div>`;
+  $('#bk').onclick=showMenu;
+  clearInterval(mTimer);mTimer=setInterval(()=>{sec++;const s=$('#ms');if(s)s.textContent=sec},1000);
+  $('#mem').onclick=e=>{
+    const c=e.target.closest('.mc');if(!c||lock||c.classList.contains('open')||c.classList.contains('matched'))return;
+    c.classList.add('open');
+    if(!first){first=c;return}
+    moves++;$('#mv').textContent=moves;
+    if(deck[first.dataset.i]===deck[c.dataset.i]){
+      first.classList.replace('open','matched');c.classList.replace('open','matched');first=null;pairs++;
+      if(pairs===8)win();
+    }else{lock=true;const a=first;first=null;setTimeout(()=>{a.classList.remove('open');c.classList.remove('open');lock=false},800)}
+  };
+  const win=()=>{
+    clearInterval(mTimer);const xp=Math.max(5,30-moves);addXp(xp);
+    const rec=S.bestMem===null||moves<S.bestMem;if(rec){S.bestMem=moves;save()}
+    setTimeout(()=>{gArea.innerHTML=`<div class="card" style="text-align:center"><div class="big">🎉</div><h2 class="t">Selesai dalam ${moves} langkah!</h2>
+      <p class="sub">Waktu ${sec} detik • +${xp} XP ${rec?'• 🏅 Rekor baru!':''}</p>
+      <div class="row" style="justify-content:center"><button class="btn" id="again">🔁 Main Lagi</button><button class="btn alt" id="bk">Menu</button></div></div>`;
+      $('#again').onclick=startMem;$('#bk').onclick=showMenu},700);
+  };
+}
+
+/* ============ INIT ============ */
+buildNav();setTheme(S.theme||'light');renderLessons();renderTasks();showMenu();go('home');
+</script>
+</body>
+</html>
